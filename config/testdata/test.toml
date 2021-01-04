@@ -1,0 +1,5 @@
+[test]
+str = "strVal"
+int = 1024
+float = 2.45
+bool = true

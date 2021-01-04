@@ -1,0 +1,19 @@
+// Package context ...
+package context
+
+const (
+	// TraceIDKey ...
+	TraceIDKey = "header-rid"
+	// SpanIDKey ...
+	SpanIDKey = "header-spanid"
+	// HintCodeKey ...
+	HintCodeKey = "header-hint-code"
+	// HintContentKey ...
+	HintContentKey = "header-hint-content"
+
+	phpTraceIDKey = "header-rid"
+	phpSpanIDKey  = "header-spanid"
+
+	// RPCTimeoutMsKey ...
+	RPCTimeoutMsKey = "rpc-timeout-ms"
+)
