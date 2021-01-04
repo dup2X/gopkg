@@ -1,0 +1,2 @@
+# gopkg
+go pkg
