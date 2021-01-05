@@ -18,8 +18,6 @@ const (
 //balancer type
 const (
 	LOCALTYPE = iota
-	DISFTYPE
-	NODEMGRTYPE
 )
 
 //Balancer represents load balancing for downstream
@@ -36,12 +34,10 @@ type Balancer interface {
 var _ Balancer = new(serverList)
 
 //NewBalancer generate a balancer object by type
-func NewBalancer(blancerType int, ns string, hosts []string, nodeOpt *NodeOption) (Balancer, error) {
+func NewBalancer(blancerType int, ns string, hosts []string) (Balancer, error) {
 	switch blancerType {
 	case LOCALTYPE:
 		return NewWithHosts(hosts), nil
-	case NODEMGRTYPE:
-		return NewNodeMgr(ns, hosts, nodeOpt)
 	default:
 		return nil, errBalancerType
 	}

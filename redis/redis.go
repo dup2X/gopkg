@@ -48,8 +48,6 @@ type Manager struct {
 	conns         chan *Conn
 	opt           *option
 	localBalancer discovery.Balancer
-	disfBalancer  discovery.Balancer
-	nodeBalancer  discovery.Balancer
 	Connected     int // 初始化新建的可用连接数
 
 	mu         *sync.Mutex
@@ -119,37 +117,8 @@ func NewManager(addrs []string, auth string, opts ...Option) (*Manager, error) {
 		discovery.LOCALTYPE,
 		"",
 		addrs,
-		nil,
 	)
 
-	if opt.nodemgrEnable {
-		mgr.nodeBalancer, err = discovery.NewBalancer(
-			discovery.NODEMGRTYPE,
-			opt.clusterName,
-			addrs,
-			&discovery.NodeOption{
-				WorkerCycle:      opt.workerCycle,
-				HealthyThreshold: opt.healthyThreshold,
-				MaxCooldownTime:  opt.maxCooldownTime,
-				MinHealthyRatio:  opt.minHealthyRatio,
-			},
-		)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if opt.disfEnable {
-		mgr.disfBalancer, err = discovery.NewBalancer(
-			discovery.DISFTYPE,
-			opt.serviceName,
-			make([]string, 0),
-			nil,
-		)
-		if err != nil {
-			return nil, err
-		}
-	}
 	cnt, err := mgr.initPool()
 	mgr.Connected = cnt
 	if mgr.opt.keepSilent && mgr.Connected > 0 {
@@ -189,15 +158,8 @@ func (m *Manager) newConn() (*Conn, error) {
 		err  error
 		addr string
 	)
-	if m.disfBalancer != nil {
-		addr, err = m.disfBalancer.Get()
-	}
 
 	if addr == "" || err != nil {
-		if m.nodeBalancer != nil {
-			addr, err = m.nodeBalancer.Get()
-		}
-
 		if addr == "" || err != nil {
 			addr, err = m.localBalancer.Get()
 		}
@@ -246,17 +208,10 @@ func (m *Manager) newConn() (*Conn, error) {
 }
 
 func (m *Manager) voteHealthy(addr string) error {
-	if m.nodeBalancer != nil {
-		return m.nodeBalancer.Vote(addr, discovery.HEALTHY)
-	}
 	return nil
 }
 
 func (m *Manager) voteUnhealthy(addr string) error {
-	if m.nodeBalancer != nil {
-		m.nodeBalancer.Vote(addr, discovery.UNHEALTHY)
-	}
-
 	return nil
 }
 
