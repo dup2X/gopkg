@@ -29,23 +29,24 @@ type outer struct {
 }
 
 type fileSetting struct {
-	rmode        rotateMode
-	dir          string
-	rotateCount  int64
-	rotateSize   uint64
-	rotateByHour bool
-	keepHours    int64
-	seprated     bool
-	autoClear    bool
-	clearHours   int32
-	clearStep    int32
-	async        bool
-	opt          *option
-	disableLink  bool
-	enable       bool
-	format       string
-	maxLevel     logLevel
-	callDepth    int
+	rmode         rotateMode
+	dir           string
+	rotateCount   int64
+	rotateSize    uint64
+	rotateByHour  bool
+	keepHours     int64
+	seprated      bool
+	autoClear     bool
+	clearHours    int32
+	clearStep     int32
+	async         bool
+	withoutHeader bool
+	opt           *option
+	disableLink   bool
+	enable        bool
+	format        string
+	maxLevel      logLevel
+	callDepth     int
 }
 
 type fileLog struct {
@@ -81,6 +82,7 @@ func parseFileSetting(sec config.Sectioner) *fileSetting {
 	setting.clearHours = int32(sec.GetIntMust("file.clear_hours", 24*30))
 	setting.clearStep = int32(sec.GetIntMust("file.clear_step", 1))
 	setting.disableLink = sec.GetBoolMust("file.disable_link", false)
+	setting.withoutHeader = sec.GetBoolMust("file.without_header", false)
 	rbh := sec.GetBoolMust("file.rotate_by_hour", false)
 	if rbh == false {
 		rs, err := sec.GetInt("file.rotate_size")
@@ -218,7 +220,11 @@ func (f *fileLog) do(lev logLevel, format string, args ...interface{}) {
 		f.input <- lc
 		return
 	}
-	f.write(lc.level, formatLog(lc))
+	if f.setting.withoutHeader {
+		f.write(lc.level, []byte(msg))
+	} else {
+		f.write(lc.level, formatLog(lc))
+	}
 }
 
 func (f *fileLog) genOuter() {
