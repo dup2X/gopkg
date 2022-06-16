@@ -182,6 +182,9 @@ func (m *Manager) newConn() (*Conn, error) {
 	if m.opt.connTimeout > 0 {
 		opts = append(opts, redis.DialConnectTimeout(m.opt.connTimeout))
 	}
+	if m.auth != "" {
+		opts = append(opts, redis.DialPassword(m.auth))
+	}
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -194,14 +197,16 @@ func (m *Manager) newConn() (*Conn, error) {
 		return nil, err
 	}
 	conn := &Conn{c, addr}
-	if m.auth != "" {
-		_, err = conn.Do(commandAuth, m.auth)
-		if err != nil {
-			m.voteUnhealthy(addr)
-			conn.Close()
-			return nil, err
+	/*
+		if m.auth != "" {
+			_, err = conn.Do(commandAuth, m.auth)
+			if err != nil {
+				m.voteUnhealthy(addr)
+				conn.Close()
+				return nil, err
+			}
 		}
-	}
+	*/
 	m.voteHealthy(addr)
 	m.activeConn++
 	return conn, err
