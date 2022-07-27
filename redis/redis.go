@@ -197,16 +197,14 @@ func (m *Manager) newConn() (*Conn, error) {
 		return nil, err
 	}
 	conn := &Conn{c, addr}
-	/*
-		if m.auth != "" {
-			_, err = conn.Do(commandAuth, m.auth)
-			if err != nil {
-				m.voteUnhealthy(addr)
-				conn.Close()
-				return nil, err
-			}
+	if m.auth != "" {
+		_, err = conn.Do(commandAuth, m.auth)
+		if err != nil {
+			m.voteUnhealthy(addr)
+			conn.Close()
+			return nil, err
 		}
-	*/
+	}
 	m.voteHealthy(addr)
 	m.activeConn++
 	return conn, err
