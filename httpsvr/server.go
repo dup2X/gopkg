@@ -136,6 +136,7 @@ func (s *Server) AddRoute(method, path string, ctrl idl.IController, opts ...Con
 			if s.log != nil {
 				s.log.Infof(logger.DLTagRequestOut+"||%s||response=%s", ctx, string(data))
 			} else {
+				println("xxxxxx")
 				logger.Infof(ctx, logger.DLTagRequestOut,
 					"uri=%s||response=%s||errno=%d||errmsg=%s||redis_elapsed=%s||mysql_elapsed=%s||proc_time=%d",
 					r.URL, string(data), code.Code(), code.Error(), context.GetRedisElapsed(ctx), context.GetMysqlElapsed(ctx), et.Elapsed()/1e6)
